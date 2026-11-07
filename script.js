@@ -677,6 +677,14 @@ async function analyzeAll() {
         
         // فراخوانی تابع برای رسم نقشه (با تاخیر برای اطمینان از لود شدن HTML)
         setTimeout(() => showMapWithOverlay(lat, lon), 100);
+
+                // 🌟 نمایش نقشه PGA (شتاب زمین)
+        html += `<div style="text-align: center; margin-top: 15px;">`;
+        html += `<div id="pgaMapOverlay" style="width: 100%; height: 400px; border-radius: 8px; border: 1px solid #cbd5e0;"></div>`;
+        html += `<p style="font-size: 12px; color: #718096; margin-top: 5px;">نقشه شتاب اوج زمین (PGA) - احتمال ۵۰ ساله (نقطه قرمز: محل انتخابی)</p>`;
+        html += `</div>`;
+        
+        setTimeout(() => showPgaMapWithOverlay(lat, lon), 200);
         
         // فراخوانی تابع برای رسم دایره
         setTimeout(() => drawMarkerOnImage('eqMapContainer', lat, lon), 100);
@@ -1040,21 +1048,15 @@ function drawMarkerOnImage(imageId, lat, lon) {
     imgContainer.appendChild(marker);
 }
 function showMapWithOverlay(lat, lon) {
-    // اگر نقشه قبلی وجود دارد، آن را پاک کن
     if (window.overlayMap) {
         window.overlayMap.remove();
     }
-
-    // ۱. ایجاد نقشه جدید
     window.overlayMap = L.map('eqMapOverlay').setView([lat, lon], 5);
 
-    // ۲. اضافه کردن عکس با استفاده از مختصات دقیق استخراج شده از KML
-    // فرمت: [[South, West], [North, East]]
+    // 🌟 مرزهای دقیق نقشه EMME (از KML قبلی)
     const imageBounds = [[16.9104632, 15.7817301], [47.8917733, 82.1054825]]; 
-    
     L.imageOverlay('earthquake-map.png', imageBounds).addTo(window.overlayMap);
 
-    // ۳. اضافه کردن مارکر (نقطه قرمز چشمک‌زن)
     const redIcon = L.divIcon({
         className: 'custom-div-icon',
         html: `<div style='background-color: red; width: 15px; height: 15px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 4px rgba(160, 174, 192, 0.6), 0 0 10px rgba(0,0,0,0.8); animation: pulse 1.5s infinite;'></div>`,
@@ -1062,11 +1064,29 @@ function showMapWithOverlay(lat, lon) {
         iconAnchor: [7.5, 7.5]
     });
 
-    // اضافه کردن مارکر به مختصات دقیق
     L.marker([lat, lon], { icon: redIcon }).addTo(window.overlayMap);
-
-    // ۴. تنظیم زوم روی نقطه انتخابی (برای اینکه دایره دقیقاً وسط باشد)
     window.overlayMap.setView([lat, lon], 6);
+}
+
+function showPgaMapWithOverlay(lat, lon) {
+    if (window.pgaOverlayMap) {
+        window.pgaOverlayMap.remove();
+    }
+    window.pgaOverlayMap = L.map('pgaMapOverlay').setView([lat, lon], 5);
+
+    // 🌟 مرزهای دقیق نقشه PGA (از KML جدید)
+    const pgaBounds = [[24.3247255, 43.2152624], [41.1400301, 64.2886042]]; 
+    L.imageOverlay('pga-map.png', pgaBounds).addTo(window.pgaOverlayMap);
+
+    const redIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style='background-color: red; width: 15px; height: 15px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 4px rgba(160, 174, 192, 0.6), 0 0 10px rgba(0,0,0,0.8); animation: pulse 1.5s infinite;'></div>`,
+        iconSize: [15, 15],
+        iconAnchor: [7.5, 7.5]
+    });
+
+    L.marker([lat, lon], { icon: redIcon }).addTo(window.pgaOverlayMap);
+    window.pgaOverlayMap.setView([lat, lon], 6);
 }
 window.addEventListener('DOMContentLoaded', function() {
     loadToken();
