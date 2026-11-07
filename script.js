@@ -1072,7 +1072,12 @@ function showPgaMapWithOverlay(lat, lon) {
     if (window.pgaOverlayMap) {
         window.pgaOverlayMap.remove();
     }
-    window.pgaOverlayMap = L.map('pgaMapOverlay').setView([lat, lon], 5);
+
+        // 🌟 تنظیمات اولیه برای نمایش کل ایران
+    const defaultCenter = [32.4279, 53.6880]; // مختصات مرکز ایران
+    const defaultZoom = 5; // زوم مناسب برای دیدن کل کشور
+    
+    window.pgaOverlayMap = L.map('pgaMapOverlay').setView(defaultCenter, defaultZoom);
 
     // 🌟 مرزهای دقیق نقشه PGA (از KML جدید)
     const pgaBounds = [[24.3247255, 43.2152624], [41.1400301, 64.2886042]]; 
@@ -1086,6 +1091,10 @@ function showPgaMapWithOverlay(lat, lon) {
     });
 
     L.marker([lat, lon], { icon: redIcon }).addTo(window.pgaOverlayMap);
+        // در نهایت، مارکر را اضافه کرده و نقشه را به نقطه انتخابی منتقل کن
+    L.marker([lat, lon], { icon: redIcon }).addTo(window.pgaOverlayMap);
+    
+    // 🌟 انتقال به نقطه انتخابی (با زوم مناسب)
     window.pgaOverlayMap.setView([lat, lon], 6);
 }
 window.addEventListener('DOMContentLoaded', function() {
